@@ -9,12 +9,9 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      // Trick the browser into thinking the backend is on the same port!
-      // (Change 3000 to whatever port your backend is actually running on)
-      '/signup': 'http://10.172.144.10:8000',
-      '/login': 'http://10.172.144.10:8000',
-      '/refresh': 'http://10.172.144.10:8000',
-      '/logout': 'http://10.172.144.10:8000',
+      // Proxy all /auth and /week5 requests to the backend
+      '/auth': 'http://10.172.144.10:8000',
+      '/week5': 'http://10.172.144.10:8000',
     }
   }
 })

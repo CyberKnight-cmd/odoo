@@ -22,7 +22,7 @@ export async function fetchWithAuth(url, options = {}, navigate) {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
       try {
-        const refreshRes = await fetch(`${API_BASE}/refresh`, {
+        const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ function LoginPage() {
     setStatus({ type: '', message: '' });
 
     try {
-      const res = await fetch(`${API_BASE}/login`, {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, phno, password })
@@ -160,7 +160,7 @@ function SignupPage() {
     setStatus({ type: '', message: '' });
 
     try {
-      const res = await fetch(`${API_BASE}/signup`, {
+      const res = await fetch(`${API_BASE}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, phno, email, password })
@@ -245,17 +245,17 @@ function DashboardRouter() {
   const role = localStorage.getItem('userRole'); // 'admin' or 'user' (or missing)
 
   if (!accessToken) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="auth/login" replace />;
   }
 
   const handleLogout = async () => {
     // We use our awesome fetchWithAuth! If the access token is expired, 
     // it will seamlessly refresh the token FIRST, then hit /logout.
-    await fetchWithAuth('/logout', { method: 'POST' }, navigate).catch(() => {});
+    await fetchWithAuth('/auth/logout', { method: 'POST' }, navigate).catch(() => {});
     
     // Always clear storage and redirect
     localStorage.clear();
-    navigate('/login');
+    navigate('/auth/login');
   };
 
   if (role === 'admin') {
@@ -272,8 +272,8 @@ export default function App() {
       <Routes>
         {/* We now serve the LandingPage at the root instead of redirecting to login */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/auth/login" element={<LoginPage />} />
+        <Route path="/auth/signup" element={<SignupPage />} />
         <Route path="/dashboard" element={<DashboardRouter />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
