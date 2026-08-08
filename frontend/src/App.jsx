@@ -3,8 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, Link } from 'react
 import { User, Lock, ArrowRight, AlertCircle, LogOut, Mail, Phone, Activity, Users, Settings, Briefcase, MapPin, Navigation, TrendingUp, ShieldCheck, Server, PlayCircle, Star } from 'lucide-react';
 import NetworkScene from './components/NetworkScene';
 
-// We MUST use an empty string so it hits the Vite proxy, otherwise we get a CORS error!
-const API_BASE = '';
+// Single source of truth for backend API prefix!
+// All backend routes will use this prefix.
+const API_BASE = '/auth';
 
 // ─── AUTO-REFRESH FETCH WRAPPER ────────────────────────────────
 // Use this function instead of fetch() for any protected API calls.
@@ -22,7 +23,7 @@ export async function fetchWithAuth(url, options = {}, navigate) {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
       try {
-        const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
+        const refreshRes = await fetch(`${API_BASE}/refresh`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -70,7 +71,7 @@ function LoginPage() {
     setStatus({ type: '', message: '' });
 
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
+      const res = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, phno, password })
@@ -160,7 +161,7 @@ function SignupPage() {
     setStatus({ type: '', message: '' });
 
     try {
-      const res = await fetch(`${API_BASE}/auth/signup`, {
+      const res = await fetch(`${API_BASE}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, phno, email, password })
@@ -245,17 +246,17 @@ function DashboardRouter() {
   const role = localStorage.getItem('userRole'); // 'admin' or 'user' (or missing)
 
   if (!accessToken) {
-    return <Navigate to="auth/login" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   const handleLogout = async () => {
     // We use our awesome fetchWithAuth! If the access token is expired, 
     // it will seamlessly refresh the token FIRST, then hit /logout.
-    await fetchWithAuth('/auth/logout', { method: 'POST' }, navigate).catch(() => {});
+    await fetchWithAuth('/logout', { method: 'POST' }, navigate).catch(() => {});
     
     // Always clear storage and redirect
     localStorage.clear();
-    navigate('/auth/login');
+    navigate('/login');
   };
 
   if (role === 'admin') {
@@ -272,8 +273,8 @@ export default function App() {
       <Routes>
         {/* We now serve the LandingPage at the root instead of redirecting to login */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/auth/login" element={<LoginPage />} />
-        <Route path="/auth/signup" element={<SignupPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/dashboard" element={<DashboardRouter />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

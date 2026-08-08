@@ -35,19 +35,9 @@ function CameraRig() {
 function Car({ startPosition, baseSpeed, color, axis = 'z', bound = 25 }) {
   const meshRef = useRef();
   const materialRef = useRef();
-  
-  // Create a sleek glowing material
-  const material = useMemo(() => new THREE.MeshStandardMaterial({
-    color: color,
-    emissive: color,
-    emissiveIntensity: 3,
-    transparent: true,
-    opacity: 1,
-    toneMapped: false
-  }), [color]);
 
   useFrame((state, delta) => {
-    if (!meshRef.current) return;
+    if (!meshRef.current || !materialRef.current) return;
     
     const pos = meshRef.current.position[axis];
     
@@ -72,8 +62,8 @@ function Car({ startPosition, baseSpeed, color, axis = 'z', bound = 25 }) {
     if (normalizedDist > 0.8) {
       opacity = (1 - normalizedDist) / 0.2; // 1 down to 0
     }
-    material.opacity = opacity;
-    material.emissiveIntensity = opacity * 3;
+    materialRef.current.opacity = opacity;
+    materialRef.current.emissiveIntensity = opacity * 3;
     
     // Reset position if it goes out of bounds
     if (baseSpeed > 0 && pos > bound) {
@@ -86,7 +76,15 @@ function Car({ startPosition, baseSpeed, color, axis = 'z', bound = 25 }) {
   return (
     <mesh ref={meshRef} position={startPosition}>
       <boxGeometry args={axis === 'z' ? [0.3, 0.4, 1.2] : [1.2, 0.4, 0.3]} />
-      <primitive ref={materialRef} object={material} attach="material" />
+      <meshStandardMaterial 
+        ref={materialRef} 
+        color={color} 
+        emissive={color} 
+        emissiveIntensity={3} 
+        transparent={true} 
+        opacity={1} 
+        toneMapped={false} 
+      />
     </mesh>
   );
 }
