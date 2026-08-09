@@ -9,9 +9,11 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      // Proxy all /auth and /week5 requests to the backend
-      '/auth': 'http://10.172.144.10:8000',
-      '/week5': 'http://10.172.144.10:8000',
+      // Proxy all backend routes to the backend server
+      '/auth': 'http://localhost:8000',
+      '/admin': 'http://localhost:8000',
+      '/user': 'http://localhost:8000',
+      '/week5': 'http://localhost:8000',
     }
   }
 })

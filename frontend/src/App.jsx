@@ -5,7 +5,7 @@ import NetworkScene from './components/NetworkScene';
 
 // Single source of truth for backend API prefix!
 // All backend routes will use this prefix.
-const API_BASE = '/auth';
+const API_BASE = '';
 
 // ─── AUTO-REFRESH FETCH WRAPPER ────────────────────────────────
 // Use this function instead of fetch() for any protected API calls.
@@ -16,14 +16,14 @@ export async function fetchWithAuth(url, options = {}, navigate) {
   if (!options.headers) options.headers = {};
   if (accessToken) options.headers['Authorization'] = `Bearer ${accessToken}`;
   
-  let res = await fetch(`${API_BASE}${url}`, options);
+  let res = await fetch(url, options);
   
   // If token is expired or unauthorized
   if (res.status === 401 || res.status === 403) {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
       try {
-        const refreshRes = await fetch(`${API_BASE}/refresh`, {
+        const refreshRes = await fetch(`/auth/refresh`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ export async function fetchWithAuth(url, options = {}, navigate) {
             
             // Retry the original request with the NEW token
             options.headers['Authorization'] = `Bearer ${data.accesstoken}`;
-            res = await fetch(`${API_BASE}${url}`, options);
+            res = await fetch(url, options);
             return res;
           }
         }
@@ -71,7 +71,7 @@ function LoginPage() {
     setStatus({ type: '', message: '' });
 
     try {
-      const res = await fetch(`${API_BASE}/login`, {
+      const res = await fetch(`/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, phno, password })
@@ -161,7 +161,7 @@ function SignupPage() {
     setStatus({ type: '', message: '' });
 
     try {
-      const res = await fetch(`${API_BASE}/signup`, {
+      const res = await fetch(`/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, phno, email, password })
@@ -252,7 +252,7 @@ function DashboardRouter() {
   const handleLogout = async () => {
     // We use our awesome fetchWithAuth! If the access token is expired, 
     // it will seamlessly refresh the token FIRST, then hit /logout.
-    await fetchWithAuth('/logout', { method: 'POST' }, navigate).catch(() => {});
+    await fetchWithAuth('/auth/logout', { method: 'POST' }, navigate).catch(() => {});
     
     // Always clear storage and redirect
     localStorage.clear();

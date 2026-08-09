@@ -39,14 +39,12 @@ async def create_user(signup_cred: SignUpRequest) -> bool:
         await users.insert_one(user.model_dump())
 
     except DuplicateKeyError as e:
-        print(e)
         raise HTTPException(
             status_code=409,
             detail="Email, or phone number already exists."
         )
 
     except PyMongoError as e:
-        print(e)
         raise HTTPException(
             status_code=500,
             detail="Database error."
@@ -138,7 +136,6 @@ async def verify_stored_refresh_token(
         )
 
     except PyMongoError as e:
-        print(e)
         return False
 
     if result is None:
@@ -162,7 +159,6 @@ async def update_new_refresh_token(
         return result.matched_count > 0
 
     except PyMongoError as e:
-        print(e)
         return False
 
 

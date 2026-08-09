@@ -2,14 +2,19 @@
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
+import random
+from bson import ObjectId
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import FastAPI
 
 from database.create_tables import init_db
-
-from database.db_instance import get_db
-from dependency.token_dependency import security, verify_access_token, verify_refresh_token
 from api.authentication import router as auth_router
+from api.admin import router as admin_router
+from api.user import router as user_router
+
+from mongodb.collections import users, riders, rideroffers
+from mongodb.models import Rider, RiderOffer
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
@@ -41,3 +46,40 @@ def start() -> dict[str, str]:
 
 app.include_router(auth_router)
 
+app.include_router(admin_router)
+
+app.include_router(user_router)
+
+@app.get("/hello")
+async def hello():
+    users_cursor = users.find({})
+    all_users = await users_cursor.to_list(length=None)
+
+    for user in all_users:
+        user_id = user.get("_id")
+        if not user_id:
+            continue
+
+        user_obj_id = ObjectId(user_id) if not isinstance(user_id, ObjectId) else user_id
+
+        riders_doc = Rider(
+            user_id=user_obj_id,
+            start_location=user.get("name", "Unknown"),
+            end_destination=user.get("email", "unknown@example.com"),
+            date_time=datetime.now(UTC),
+            no_of_seats=random.randint(1, 4),
+            status="PENDING",
+        )
+        await riders.insert_one(riders_doc.model_dump())
+
+        offers_doc = RiderOffer(
+            user_id=user_obj_id,
+            start_location=user.get("name", "Unknown"),
+            end_destination=user.get("email", "unknown@example.com"),
+            date_time=datetime.now(UTC),
+            available_seats=random.randint(1, 4),
+            cost_per_seat=round(random.uniform(5.0, 50.0), 2),
+        )
+        await rideroffers.insert_one(offers_doc.model_dump())
+
+    return {"status": "User rider migration completed"}

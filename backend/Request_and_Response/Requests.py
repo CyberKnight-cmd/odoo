@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
 
@@ -16,3 +17,19 @@ class LoginRequest(BaseModel):
     email: EmailStr
     phno: str
     password: str
+
+
+class FindRideRequest(BaseModel):
+    start_location: str
+    end_destination: str
+    date_time: datetime
+    no_of_seats: int
+    status: str = "pending"
+
+
+class OfferRideRequest(BaseModel):
+    start_location: str
+    end_destination: str
+    date_time: datetime
+    available_seats: int
+    cost_per_seat: float

@@ -43,3 +43,27 @@ class Announcement(BaseModel):
     author_role: str
     created_at: datetime
     updated_at: datetime
+
+
+class Rider(BaseModel):
+    """Rider search request (findride) stored in riders collection."""
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    user_id: ObjectId
+    start_location: str
+    end_destination: str
+    date_time: datetime
+    no_of_seats: int
+    status: str
+
+
+class RiderOffer(BaseModel):
+    """Rider offer request (offerride) stored in rideroffers collection."""
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    user_id: ObjectId
+    start_location: str
+    end_destination: str
+    date_time: datetime
+    available_seats: int
+    cost_per_seat: float
