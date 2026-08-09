@@ -1,4 +1,4 @@
-from mongodb.collections import users, sessions, announcements
+from mongodb.collections import users, sessions
 
 async def init_indexes():
 

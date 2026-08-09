@@ -15,10 +15,11 @@ from api.user import router as user_router
 
 from mongodb.collections import users, riders, rideroffers
 from mongodb.models import Rider, RiderOffer
+from mongodb.indexes import init_indexes
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
-    await init_db()
+    await init_indexes()
     yield
 
 
