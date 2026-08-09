@@ -9,12 +9,17 @@ authors = [
 requires-python = ">=3.14"
 dependencies = [
     "asyncmy>=0.2.13",
-    "fastapi>=0.141.1",
-    "pwdlib>=0.3.0",
+    "email-validator>=2.3.0",
+    "fastapi[standard]>=0.141.1",
+    "h3>=4.5.0",
+    "polyline>=2.0.4",
+    "pwdlib[argon2]>=0.3.0",
     "pydantic-settings>=2.15.0",
     "pymongo>=4.17.0",
     "python-dotenv>=1.2.2",
     "python-jose>=3.5.0",
+    "requests>=2.34.2",
+    "sqlalchemy>=2.0.51",
 ]
 
 [project.scripts]

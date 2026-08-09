@@ -22,6 +22,10 @@ class LoginRequest(BaseModel):
 class FindRideRequest(BaseModel):
     start_location: str
     end_destination: str
+    start_lat: float
+    start_lon: float
+    dest_lat: float
+    dest_lon: float
     date_time: datetime
     no_of_seats: int
     status: str = "pending"
@@ -30,6 +34,10 @@ class FindRideRequest(BaseModel):
 class OfferRideRequest(BaseModel):
     start_location: str
     end_destination: str
+    start_lat: float
+    start_lon: float
+    dest_lat: float
+    dest_lon: float
     date_time: datetime
     available_seats: int
     cost_per_seat: float

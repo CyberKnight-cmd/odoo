@@ -18,3 +18,6 @@ async def init_indexes():
     #     "session_id",
     #     unique=True
     # )
+
+    from mongodb.collections import riders
+    await riders.create_index("h3_pickup_cell")

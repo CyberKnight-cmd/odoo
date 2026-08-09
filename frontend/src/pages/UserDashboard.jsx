@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Navigation, Calendar, Users, MapPin, DollarSign, Clock, ArrowRight, CheckCircle2, AlertCircle, LogOut, Settings, Activity } from 'lucide-react';
+import { Navigation, Calendar, Users, MapPin, DollarSign, Clock, ArrowRight, CheckCircle2, AlertCircle, LogOut, Settings, Activity, Map } from 'lucide-react';
 import NetworkScene from '../components/NetworkScene';
+import TripMap from '../components/TripMap';
 import { fetchWithAuth } from '../App';
 import { useNavigate } from 'react-router-dom';
+
+const geocodeAddress = async (address) => {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+    const data = await res.json();
+    if (data && data.length > 0) {
+      return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+    }
+  } catch (err) {
+    console.error("Geocoding failed for", address, err);
+  }
+  return { lat: 0.0, lon: 0.0 };
+};
 
 export function UserDashboard({ onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' (Offer Ride) | 'network' (Find Ride) | 'settings' | 'sessions'
@@ -116,9 +130,16 @@ export function UserDashboard({ onLogout }) {
     setOfferStatus({ type: '', message: '' });
 
     try {
+      const startCoords = await geocodeAddress(startLoc);
+      const destCoords = await geocodeAddress(destLoc);
+
       const payload = {
         start_location: startLoc,
         end_destination: destLoc,
+        start_lat: startCoords.lat,
+        start_lon: startCoords.lon,
+        dest_lat: destCoords.lat,
+        dest_lon: destCoords.lon,
         date_time: new Date(rideDate).toISOString(),
         available_seats: parseInt(seats),
         cost_per_seat: parseFloat(price)
@@ -161,9 +182,16 @@ export function UserDashboard({ onLogout }) {
     setReqStatus({ type: '', message: '' });
 
     try {
+      const startCoords = await geocodeAddress(reqStartLoc);
+      const destCoords = await geocodeAddress(reqDestLoc);
+
       const payload = {
         start_location: reqStartLoc,
         end_destination: reqDestLoc,
+        start_lat: startCoords.lat,
+        start_lon: startCoords.lon,
+        dest_lat: destCoords.lat,
+        dest_lon: destCoords.lon,
         date_time: new Date(reqRideDate).toISOString(),
         no_of_seats: parseInt(reqSeats),
         status: 'pending'
@@ -541,6 +569,16 @@ export function UserDashboard({ onLogout }) {
               }`}
             >
               Find Ride
+            </button>
+            <button 
+              onClick={() => {
+                setActiveTab('map');
+              }} 
+              className={`text-lg font-semibold pb-2 transition-all border-b-2 cursor-pointer flex items-center gap-2 ${
+                activeTab === 'map' ? 'text-white border-blue-500' : 'text-slate-400 border-transparent hover:text-white'
+              }`}
+            >
+              <Map size={18} /> Trip Map
             </button>
           </div>
         )}
@@ -993,6 +1031,10 @@ export function UserDashboard({ onLogout }) {
             </div>
 
           </div>
+        )}
+
+        {activeTab === 'map' && (
+          <TripMap navigate={navigate} />
         )}
 
         {activeTab === 'settings' && (
